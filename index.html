@@ -1,0 +1,1035 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialPilot - تطبيق النشر على وسائل التواصل</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* التصميم العام */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #1877F2;
+            --secondary: #25D366;
+            --dark: #1A1A2E;
+            --light: #F8F9FA;
+            --gray: #6C757D;
+        }
+        
+        body {
+            background-color: var(--light);
+            color: #333;
+            transition: background 0.3s;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        body.dark-mode {
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        
+        .container {
+            max-width: 100%;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* صفحة التحميل */
+        .loader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), #3498db);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+        
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+        
+        .loader-logo {
+            font-size: 3.5rem;
+            color: white;
+            margin-bottom: 20px;
+        }
+        
+        .loader-text {
+            color: white;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+        
+        .progress-bar {
+            width: 300px;
+            height: 10px;
+            background-color: rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: white;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        /* صفحة تسجيل الدخول */
+        .login-screen {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .login-screen.dark-mode {
+            background-color: var(--dark);
+        }
+        
+        .app-logo {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+        
+        .app-title {
+            font-size: 2rem;
+            margin-bottom: 40px;
+            color: var(--dark);
+        }
+        
+        .login-screen.dark-mode .app-title {
+            color: white;
+        }
+        
+        .login-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(24, 119, 242, 0.3);
+            margin-top: 20px;
+        }
+        
+        .login-btn:hover {
+            background-color: #166FE5;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.4);
+        }
+        
+        .login-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* الصفحة الرئيسية */
+        .dashboard {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 0;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        .dark-mode .header {
+            border-bottom: 1px solid #333;
+        }
+        
+        .app-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .dark-toggle {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--gray);
+            cursor: pointer;
+        }
+        
+        .dark-mode .dark-toggle {
+            color: #f0f0f0;
+        }
+        
+        .buttons-container {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .action-btn {
+            padding: 25px 20px;
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .action-btn i {
+            font-size: 2.5rem;
+            margin-bottom: 15px;
+        }
+        
+        .all-platforms {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 6px 20px rgba(24, 119, 242, 0.3);
+        }
+        
+        .custom-select {
+            background-color: white;
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            box-shadow: 0 4px 15px rgba(108, 117, 125, 0.1);
+        }
+        
+        .dark-mode .custom-select {
+            background-color: #1e1e2e;
+            color: #f0f0f0;
+            border: 2px solid var(--primary);
+        }
+        
+        .social-icons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .social-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+        }
+        
+        .facebook {
+            background-color: #1877F2;
+        }
+        
+        .twitter {
+            background-color: #1DA1F2;
+        }
+        
+        .instagram {
+            background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        }
+        
+        /* صفحة تحميل الصورة */
+        .upload-screen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .screen-title {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .dark-mode .screen-title {
+            color: #f0f0f0;
+        }
+        
+        .upload-area {
+            border: 2px dashed var(--gray);
+            border-radius: 16px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background-color: rgba(108, 117, 125, 0.05);
+            margin-bottom: 30px;
+        }
+        
+        .dark-mode .upload-area {
+            border: 2px dashed #555;
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+        
+        .upload-area:hover {
+            border-color: var(--primary);
+            background-color: rgba(24, 119, 242, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 4rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .dark-mode .upload-icon {
+            color: #888;
+        }
+        
+        .upload-text {
+            font-size: 1.2rem;
+            color: var(--gray);
+            margin-bottom: 20px;
+        }
+        
+        .dark-mode .upload-text {
+            color: #aaa;
+        }
+        
+        .browse-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background 0.3s;
+        }
+        
+        .browse-btn:hover {
+            background-color: #166FE5;
+        }
+        
+        .preview-container {
+            display: none;
+            margin-top: 30px;
+        }
+        
+        .preview-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .dark-mode .preview-title {
+            color: #f0f0f0;
+        }
+        
+        .image-preview {
+            width: 100%;
+            max-width: 400px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin: 0 auto;
+            display: block;
+        }
+        
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .back-btn, .next-btn {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+        }
+        
+        .back-btn {
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        
+        .dark-mode .back-btn {
+            background-color: #333;
+            color: #f0f0f0;
+        }
+        
+        .next-btn {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        /* صفحة اختيار المنصات */
+        .platforms-screen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        
+        .platforms-container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .platform-card {
+            background-color: white;
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .dark-mode .platform-card {
+            background-color: #1e1e2e;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+        }
+        
+        .platform-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .platform-card.selected {
+            border-color: var(--primary);
+            background-color: rgba(24, 119, 242, 0.05);
+        }
+        
+        .platform-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            margin-right: 20px;
+            flex-shrink: 0;
+        }
+        
+        .platform-info {
+            flex-grow: 1;
+        }
+        
+        .platform-name {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        .platform-status {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .dark-mode .platform-status {
+            color: #aaa;
+        }
+        
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 24px;
+        }
+        
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .slider {
+            background-color: var(--primary);
+        }
+        
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+        
+        .publish-btn {
+            background-color: var(--secondary);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 12px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            display: block;
+            margin: 40px auto 0;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3);
+        }
+        
+        .publish-btn:hover {
+            background-color: #20c05c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+        }
+        
+        .publish-btn:active {
+            transform: translateY(0);
+        }
+        
+        /* رسالة النجاح */
+        .success-screen {
+            display: none;
+            padding: 20px;
+            min-height: 100vh;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .success-icon {
+            font-size: 6rem;
+            color: var(--secondary);
+            margin-bottom: 30px;
+        }
+        
+        .success-title {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+        }
+        
+        .dark-mode .success-title {
+            color: #f0f0f0;
+        }
+        
+        .success-message {
+            font-size: 1.2rem;
+            color: var(--gray);
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+        
+        .dark-mode .success-message {
+            color: #aaa;
+        }
+        
+        .analytics {
+            background-color: white;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .dark-mode .analytics {
+            background-color: #1e1e2e;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+        
+        .analytics-title {
+            font-size: 1.3rem;
+            margin-bottom: 20px;
+            color: var(--dark);
+            text-align: center;
+        }
+        
+        .dark-mode .analytics-title {
+            color: #f0f0f0;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+        }
+        
+        .stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .dark-mode .stat-value {
+            color: #4dabf7;
+        }
+        
+        .stat-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .dark-mode .stat-label {
+            color: #aaa;
+        }
+        
+        .home-btn {
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 35px;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            margin-top: 30px;
+            transition: all 0.3s;
+        }
+        
+        .home-btn:hover {
+            background-color: #166FE5;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 10px rgba(24, 119, 242, 0.4);
+        }
+        
+        /* التكيف مع الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .app-title {
+                font-size: 1.5rem;
+            }
+            
+            .login-btn {
+                padding: 12px 40px;
+                font-size: 1.1rem;
+            }
+            
+            .action-btn {
+                padding: 20px 15px;
+            }
+            
+            .screen-title {
+                font-size: 1.5rem;
+            }
+            
+            .success-title {
+                font-size: 2rem;
+            }
+            
+            .stat-value {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- صفحة التحميل -->
+    <div class="loader" id="loader">
+        <div class="loader-logo">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+        <div class="loader-text">SocialPilot جاري التحميل</div>
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+    </div>
+
+    <!-- صفحة تسجيل الدخول -->
+    <div class="login-screen" id="loginScreen">
+        <div class="app-logo">
+            <i class="fas fa-paper-plane"></i>
+        </div>
+        <h1 class="app-title">SocialPilot - أداة النشر الذكي</h1>
+        <button class="login-btn" id="loginBtn">
+            تسجيل الدخول
+        </button>
+    </div>
+
+    <!-- الصفحة الرئيسية -->
+    <div class="dashboard" id="dashboard">
+        <div class="header">
+            <div class="app-name">
+                <i class="fas fa-paper-plane"></i> SocialPilot
+            </div>
+            <button class="dark-toggle" id="darkToggle">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+        
+        <div class="buttons-container">
+            <button class="action-btn all-platforms" id="allPlatformsBtn">
+                <i class="fas fa-globe"></i>
+                نشر في جميع المواقع
+                <div class="social-icons">
+                    <div class="social-icon facebook">
+                        <i class="fab fa-facebook-f"></i>
+                    </div>
+                    <div class="social-icon twitter">
+                        <i class="fab fa-twitter"></i>
+                    </div>
+                    <div class="social-icon instagram">
+                        <i class="fab fa-instagram"></i>
+                    </div>
+                </div>
+            </button>
+            
+            <button class="action-btn custom-select" id="customSelectBtn">
+                <i class="fas fa-mouse-pointer"></i>
+                اختر منصاتك
+            </button>
+        </div>
+    </div>
+
+    <!-- صفحة تحميل الصورة -->
+    <div class="upload-screen" id="uploadScreen">
+        <h2 class="screen-title">تحميل الصورة للنشر</h2>
+        
+        <div class="upload-area" id="uploadArea">
+            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+            <p class="upload-text">اسحب وأسقط الصورة هنا أو انقر للاختيار</p>
+            <button class="browse-btn">تصفح الملفات</button>
+            <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        </div>
+        
+        <div class="preview-container" id="previewContainer">
+            <h3 class="preview-title">معاينة الصورة</h3>
+            <img src="" alt="معاينة الصورة" class="image-preview" id="imagePreview">
+            
+            <div class="action-buttons">
+                <button class="back-btn" id="uploadBackBtn">
+                    <i class="fas fa-arrow-left"></i> رجوع
+                </button>
+                <button class="next-btn" id="uploadNextBtn">
+                    التالي <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- صفحة اختيار المنصات -->
+    <div class="platforms-screen" id="platformsScreen">
+        <h2 class="screen-title">اختر المنصات للنشر</h2>
+        
+        <div class="platforms-container">
+            <div class="platform-card" data-platform="facebook">
+                <div class="platform-icon facebook">
+                    <i class="fab fa-facebook-f"></i>
+                </div>
+                <div class="platform-info">
+                    <div class="platform-name">فيسبوك</div>
+                    <div class="platform-status">متصل: حسام التاجر</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="platform-card" data-platform="twitter">
+                <div class="platform-icon twitter">
+                    <i class="fab fa-twitter"></i>
+                </div>
+                <div class="platform-info">
+                    <div class="platform-name">تويتر</div>
+                    <div class="platform-status">متصل: @hamad_alshar</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="platform-card" data-platform="instagram">
+                <div class="platform-icon instagram">
+                    <i class="fab fa-instagram"></i>
+                </div>
+                <div class="platform-info">
+                    <div class="platform-name">انستقرام</div>
+                    <div class="platform-status">متصل: design_with_hamad</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="platform-card" data-platform="linkedin">
+                <div class="platform-icon" style="background-color: #0A66C2;">
+                    <i class="fab fa-linkedin-in"></i>
+                </div>
+                <div class="platform-info">
+                    <div class="platform-name">لينكد إن</div>
+                    <div class="platform-status">غير متصل</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+            
+            <div class="platform-card" data-platform="pinterest">
+                <div class="platform-icon" style="background-color: #BD081C;">
+                    <i class="fab fa-pinterest-p"></i>
+                </div>
+                <div class="platform-info">
+                    <div class="platform-name">بينتريست</div>
+                    <div class="platform-status">غير متصل</div>
+                </div>
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="slider"></span>
+                </label>
+            </div>
+        </div>
+        
+        <button class="publish-btn" id="publishBtn">
+            <i class="fas fa-share-alt"></i> نشر الآن
+        </button>
+    </div>
+
+    <!-- صفحة النشر الناجح -->
+    <div class="success-screen" id="successScreen">
+        <div class="success-icon">
+            <i class="fas fa-check-circle"></i>
+        </div>
+        <h2 class="success-title">تم النشر بنجاح!</h2>
+        <p class="success-message">
+            تم نشر صورتك على المنصات المحددة بنجاح. يمكنك تتبع أداء منشوراتك 
+            من خلال لوحة التحليلات أو العودة إلى الصفحة الرئيسية.
+        </p>
+        
+        <div class="analytics">
+            <h3 class="analytics-title">إحصائيات النشر</h3>
+            <div class="stats">
+                <div class="stat">
+                    <div class="stat-value">3</div>
+                    <div class="stat-label">منصات</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">1.2K</div>
+                    <div class="stat-label">مشاهدات</div>
+                </div>
+                <div class="stat">
+                    <div class="stat-value">87</div>
+                    <div class="stat-label">تفاعلات</div>
+                </div>
+            </div>
+        </div>
+        
+        <button class="home-btn" id="homeBtn">
+            العودة إلى الصفحة الرئيسية
+        </button>
+    </div>
+
+    <script>
+        // محاكاة تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const loader = document.getElementById('loader');
+            const progress = document.getElementById('progress');
+            const loginScreen = document.getElementById('loginScreen');
+            const loginBtn = document.getElementById('loginBtn');
+            const dashboard = document.getElementById('dashboard');
+            const allPlatformsBtn = document.getElementById('allPlatformsBtn');
+            const customSelectBtn = document.getElementById('customSelectBtn');
+            const uploadScreen = document.getElementById('uploadScreen');
+            const uploadArea = document.getElementById('uploadArea');
+            const fileInput = document.getElementById('fileInput');
+            const imagePreview = document.getElementById('imagePreview');
+            const preViewContainer = document.getElementById('previewContainer');
+            const uploadBackBtn = document.getElementById('uploadBackBtn');
+            const uploadNextBtn = document.getElementById('uploadNextBtn');
+            const platformsScreen = document.getElementById('platformsScreen');
+            const publishBtn = document.getElementById('publishBtn');
+            const successScreen = document.getElementById('successScreen');
+            const homeBtn = document.getElementById('homeBtn');
+            const darkToggle = document.getElementById('darkToggle');
+            
+            // محاكاة شريط التقدم
+            let progressValue = 0;
+            const progressInterval = setInterval(() => {
+                progressValue += 5;
+                progress.style.width = `${progressValue}%`;
+                
+                if (progressValue >= 100) {
+                    clearInterval(progressInterval);
+                    setTimeout(() => {
+                        loader.classList.add('hidden');
+                        loginScreen.style.display = 'flex';
+                    }, 500);
+                }
+            }, 100);
+            
+            // تسجيل الدخول
+            loginBtn.addEventListener('click', function() {
+                loginScreen.style.display = 'none';
+                dashboard.style.display = 'block';
+            });
+            
+            // زر النشر على جميع المنصات
+            allPlatformsBtn.addEventListener('click', function() {
+                dashboard.style.display = 'none';
+                uploadScreen.style.display = 'block';
+            });
+            
+            // زر الاختيار الانتقائي
+            customSelectBtn.addEventListener('click', function() {
+                dashboard.style.display = 'none';
+                platformsScreen.style.display = 'block';
+            });
+            
+            // تحميل الصورة
+            uploadArea.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function(e) {
+                if (e.target.files && e.target.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(event) {
+                        imagePreview.src = event.target.result;
+                        preViewContainer.style.display = 'block';
+                    }
+                    
+                    reader.readAsDataURL(e.target.files[0]);
+                }
+            });
+            
+            // الزر الرجوع في صفحة التحميل
+            uploadBackBtn.addEventListener('click', function() {
+                uploadScreen.style.display = 'none';
+                dashboard.style.display = 'block';
+            });
+            
+            // الزر التالي في صفحة التحميل
+            uploadNextBtn.addEventListener('click', function() {
+                uploadScreen.style.display = 'none';
+                platformsScreen.style.display = 'block';
+            });
+            
+            // تفعيل/تعطيل المنصات
+            const platformCards = document.querySelectorAll('.platform-card');
+            platformCards.forEach(card => {
+                const checkbox = card.querySelector('input[type="checkbox"]');
+                
+                card.addEventListener('click', function(e) {
+                    if (e.target !== checkbox && e.target.tagName !== 'LABEL') {
+                        checkbox.checked = !checkbox.checked;
+                        updateCardSelection(card, checkbox.checked);
+                    }
+                });
+                
+                checkbox.addEventListener('change', function() {
+                    updateCardSelection(card, this.checked);
+                });
+                
+                function updateCardSelection(card, isChecked) {
+                    if (isChecked) {
+                        card.classList.add('selected');
+                    } else {
+                        card.classList.remove('selected');
+                    }
+                }
+            });
+            
+            // زر النشر
+            publishBtn.addEventListener('click', function() {
+                platformsScreen.style.display = 'none';
+                successScreen.style.display = 'flex';
+            });
+            
+            // الزر العودة إلى الرئيسية
+            homeBtn.addEventListener('click', function() {
+                successScreen.style.display = 'none';
+                dashboard.style.display = 'block';
+                
+                // إعادة تعيين النموذج
+                preViewContainer.style.display = 'none';
+                imagePreview.src = '';
+                fileInput.value = '';
+                
+                // إلغاء تحديد جميع المنصات
+                platformCards.forEach(card => {
+                    const checkbox = card.querySelector('input[type="checkbox"]');
+                    if (card.dataset.platform !== 'facebook' && 
+                        card.dataset.platform !== 'twitter' && 
+                        card.dataset.platform !== 'instagram') {
+                        checkbox.checked = false;
+                        card.classList.remove('selected');
+                    } else {
+                        checkbox.checked = true;
+                        card.classList.add('selected');
+                    }
+                });
+            });
+            
+            // تبديل وضع الليل/النهار
+            darkToggle.addEventListener('click', function() {
+                document.body.classList.toggle('dark-mode');
+                
+                const icon = darkToggle.querySelector('i');
+                if (document.body.classList.contains('dark-mode')) {
+                    icon.classList.remove('fa-moon');
+                    icon.classList.add('fa-sun');
+                } else {
+                    icon.classList.remove('fa-sun');
+                    icon.classList.add('fa-moon');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
